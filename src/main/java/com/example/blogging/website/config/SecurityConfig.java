@@ -3,6 +3,7 @@ import com.example.blogging.website.security.CustomeUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -23,7 +24,10 @@ public class SecurityConfig {
     protected SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
         http
                 .csrf(customizer->customizer.disable())
-                .authorizeHttpRequests(request->request.anyRequest().authenticated())
+                .authorizeHttpRequests(request->request
+                        .requestMatchers(HttpMethod.POST,"api/users/{id}").permitAll()
+                        .anyRequest().authenticated())
+
                 .formLogin(customizer->customizer.disable())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
