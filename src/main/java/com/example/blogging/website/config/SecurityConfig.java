@@ -25,8 +25,8 @@ public class SecurityConfig {
                 .csrf(customizer->customizer.disable())
                 .authorizeHttpRequests(request->request.anyRequest().authenticated())
                 .formLogin(customizer->customizer.disable())
-                .httpBasic(Customizer.withDefaults());
-                //.sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+                .httpBasic(Customizer.withDefaults())
+                .sessionManagement(session->session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
                 return http.build();
     }
 
