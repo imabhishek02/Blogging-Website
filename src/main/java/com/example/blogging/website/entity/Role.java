@@ -12,7 +12,6 @@ import org.modelmapper.internal.bytebuddy.dynamic.loading.InjectionClassLoader;
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
 }

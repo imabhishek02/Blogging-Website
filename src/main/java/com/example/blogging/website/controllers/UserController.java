@@ -5,11 +5,16 @@ import com.example.blogging.website.exception.ResourceNotFoundException;
 import com.example.blogging.website.payload.ApiResponse;
 import com.example.blogging.website.payload.UserDto;
 import com.example.blogging.website.repository.UserRepo;
+import com.example.blogging.website.services.JwtService;
 import com.example.blogging.website.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,11 +29,29 @@ public class UserController {
     @Autowired
     private UserRepo userRepo;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtService jwtService;
+
     @PostMapping("/createUser")
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto){
         UserDto obj  = this.userService.createUser(userDto);
         return new ResponseEntity<>(obj, HttpStatus.CREATED);
     }
+    @PostMapping("/login")
+    public String loginUser(@RequestBody UserDto userDto){
+        Authentication authentication = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(userDto.getEmail(),userDto.getPassword()));
+
+        if(authentication.isAuthenticated()){
+           return  jwtService.generateToken(userDto.getEmail());
+        }else{
+            return "failure";
+        }
+    }
+
 
     @PutMapping("/updateUser/{id}")
     public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserDto userDto,@PathVariable int id)
@@ -49,6 +72,7 @@ public class UserController {
             throw new ResourceNotFoundException("","",id);
         }
     }
+   // @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/getAll")
     public ResponseEntity<List<UserDto>> getAllUser(){
         List<UserDto> allUser = this.userService.getAllUser();
