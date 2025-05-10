@@ -1,8 +1,11 @@
 package com.example.blogging.website.services.impl;
 
+import com.example.blogging.website.config.AppConstants;
+import com.example.blogging.website.entity.Role;
 import com.example.blogging.website.entity.User;
 import com.example.blogging.website.exception.ResourceNotFoundException;
 import com.example.blogging.website.payload.UserDto;
+import com.example.blogging.website.repository.RoleRepo;
 import com.example.blogging.website.repository.UserRepo;
 import com.example.blogging.website.services.UserService;
 import org.modelmapper.ModelMapper;
@@ -11,6 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,6 +26,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
 
+    @Autowired
+    private RoleRepo roleRepo;
+
 //    @Autowired
 //    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
@@ -31,6 +38,8 @@ public class UserServiceImpl implements UserService {
         BCryptPasswordEncoder encrypt = new BCryptPasswordEncoder(12);
         String ps = encrypt.encode(userDto.getPassword());
         obj.setPassword(ps);
+        Role role = roleRepo.findById(AppConstants.ROLE_USER).get();
+        obj.getRoles().add(role);
         this.userRepo.save(obj);
         return userDto;
     }
